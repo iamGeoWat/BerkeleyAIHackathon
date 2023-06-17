@@ -1,0 +1,79 @@
+{
+  "text": " Hi, everyone. We will now test the performance of this software. First of all, let's talk about some words. Let's see how it works.",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Hi, everyone. We will now test the performance of this software.",
+      "tokens": [
+        2421,
+        11,
+        1518,
+        13,
+        492,
+        486,
+        586,
+        1500,
+        264,
+        3389,
+        295,
+        341,
+        4722,
+        13
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.709931262703829,
+      "compression_ratio": 1.2773109243697478,
+      "no_speech_prob": 0.08724968135356903
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 4.0,
+      "end": 7.0,
+      "text": " First of all, let's talk about some words.",
+      "tokens": [
+        2386,
+        295,
+        439,
+        11,
+        718,
+        311,
+        751,
+        466,
+        512,
+        2283,
+        13
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.709931262703829,
+      "compression_ratio": 1.2773109243697478,
+      "no_speech_prob": 0.08724968135356903
+    },
+    {
+      "id": 2,
+      "seek": 700,
+      "start": 7.0,
+      "end": 10.0,
+      "text": " Let's see how it works.",
+      "tokens": [
+        50364,
+        961,
+        311,
+        536,
+        577,
+        309,
+        1985,
+        13,
+        51614
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.8466212272644043,
+      "compression_ratio": 0.7419354838709677,
+      "no_speech_prob": 0.1534474939107895
+    }
+  ],
+  "language": "zh"
+}
