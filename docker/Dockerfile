@@ -26,27 +26,45 @@ RUN export DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 ; \
 	rm -rf /var/lib/apt/lists/* && \
      pip3 install --upgrade setuptools
 
-# RUN curl -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
-#      chmod +x ~/miniconda.sh && \
-#      ~/miniconda.sh -b -p /opt/conda && \
-#      rm ~/miniconda.sh
+RUN sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
-# ENV PATH /opt/conda/bin:$PATH
+RUN sudo apt-get install ffmpeg -y
 
-# RUN conda config --set always_yes yes --set changeps1 no && conda update -q conda
-# RUN conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+RUN curl https://pyenv.run | bash
+
+RUN echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc && \
+     echo 'eval "$(pyenv init -)"' >> ~/.bashrc && \
+     echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+
+RUN exec $SHELL
+
+RUN pyenv --version
+
+RUN pyenv install 3.6
+
+RUN pyenv install 3.9
 
 # # Install Wav2Lip package
 # # NOTE we use the git clone to install the requirements only once
 # # (if we use COPY it will invalidate the cache and  reinstall the dependencies for every change in the sources)
 WORKDIR /workspace
 RUN chmod -R a+w /workspace
-RUN git clone https://github.com/iamGeoWat/Wav2Lip
-WORKDIR /workspace/Wav2Lip
+RUN git clone https://github.com/iamGeoWat/BerkeleyAIHackathon.git
+
+RUN pyenv local 3.9
+RUN pip install --upgrade pip
 RUN pip3 install -r requirements.txt
 
+RUN git clone https://github.com/iamGeoWat/Wav2Lip
+WORKDIR /workspace/Wav2Lip
+RUN pyenv local 3.6
+RUN pip3 install -r requirements.txt
+RUN pip install opencv-contrib-python==4.2.0.34
+
 RUN mkdir -p /root/.cache/torch/checkpoints && \
-     curl -SL -o /root/.cache/torch/checkpoints/s3fd-619a316812.pth "https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth"
+     curl -SL -o /root/.cache/torch/checkpoints/s3fd.pth "https://www.adrianbulat.com/downloads/python-fan/s3fd.pth"
 
 # !!! NOTE !!! nvidia-driver version must match the version installed on the host(/docker server)
 RUN export DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 ; \
@@ -54,6 +72,12 @@ RUN export DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 ; \
           nvidia-driver-450 mesa-utils && \
 	rm -rf /var/lib/apt/lists/*
 
-# create the working directory, to be mounted with the bind option
-RUN mkdir /workspace/src
-WORKDIR /workspace/src
+
+WORKDIR /workspace/BerkeleyAIHackathon
+RUN python3 main.py
+
+RUN mv ./test_long_output.mp4 ../Wav2Lip/filelists/test_long_output.mp4
+RUN mv ./test_long_english.wav ../Wav2Lip/filelists/test_long_english.wav
+
+WORKDIR /workspace/Wav2Lip
+RUN python3 inference.py --checkpoint_path ./models/wav2lip.pth --face ./filelists/test_long_output.mp4 --audio ./filelists/test_long_english.wav
