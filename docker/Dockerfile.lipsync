@@ -1,0 +1,63 @@
+# 1. install a version of docker with gpu support (docker-ce >= 19.03)
+
+# 2.  enter the project directory and build the wav2lip image:
+# docker build -t wav2lip .
+
+# 3. allow root user to connect to the display
+# xhost +local:root
+
+# 4. instantiate the container
+# docker run --rm --gpus all -v /tmp/.X11-unix:/tmp/.X11-unix -v $PWD:/workspace/src -e DISPLAY=$DISPLAY --device /dev/dri -ti wav2lip bash
+
+# NOTES:
+# export CUDA_VISIBLE_DEVICES="" ## force cpu only
+
+# Based on https://github.com/1adrianb/face-alignment/blob/master/Dockerfile
+
+FROM python:3.8-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUNLEVEL=1
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+          build-essential cmake git curl ca-certificates \
+          vim \
+          python3-pip python3-dev python3-wheel \
+          libglib2.0-0 libxrender1 python3-soundfile \
+          ffmpeg && \
+	rm -rf /var/lib/apt/lists/* && \
+    pip3 install --upgrade setuptools
+
+WORKDIR /workspace
+RUN chmod -R a+w /workspace
+RUN git clone https://github.com/iamGeoWat/Wav2Lip
+WORKDIR /workspace/Wav2Lip
+RUN git pull
+
+RUN pip install --upgrade pip
+
+RUN apt-get update && apt-get install -y \
+    libsm6 \
+    libxext6 \
+    libxrender-dev
+
+RUN pip install -r requirements.txt
+
+RUN wget https://www.dropbox.com/s/bqyvr740l0zcjkb/wav2lip.pth?dl=0 -O ./models/wav2lip.pth
+RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O ./face_detection/detection/sfd/s3fd.pth
+
+# !!! NOTE !!! nvidia-driver version must match the version installed on the host(/docker server)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+          nvidia-driver-450 mesa-utils && \
+	rm -rf /var/lib/apt/lists/*
+
+#RUN mv ./test_long_output.mp4 ../Wav2Lip/filelists/test_long_output.mp4
+#RUN mv ./test_long_english.wav ../Wav2Lip/filelists/test_long_english.wav
+
+
+RUN python3 inference.py --checkpoint_path ./models/wav2lip.pth --face ../test_long_output.mp4 --audio ../test_long_english.wav
+
+RUN docker cp $(docker ps -lq):/workspace/Wav2Lip/results/result_voice.mp4 ~/
+

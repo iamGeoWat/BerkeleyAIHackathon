@@ -3,7 +3,7 @@
 
 # Allow files and directories
 !/audio.py
-!/Dockerfile
+!/Dockerfile.translate
 !/hparams.py
 !/preprocess.py
 !/checkpoints/
