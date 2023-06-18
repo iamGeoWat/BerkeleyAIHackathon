@@ -81,3 +81,6 @@ RUN mv ./test_long_english.wav ../Wav2Lip/filelists/test_long_english.wav
 
 WORKDIR /workspace/Wav2Lip
 RUN python3 inference.py --checkpoint_path ./models/wav2lip.pth --face ./filelists/test_long_output.mp4 --audio ./filelists/test_long_english.wav
+
+RUN sudo docker cp $(sudo docker ps -lq):/workspace/Wav2Lip/results/result_voice.mp4 ~/
+
