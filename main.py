@@ -10,7 +10,7 @@ def extract_audio(video_file_path, audio_output_path):
     audio_clip.write_audiofile(audio_output_path)
 
 
-file_name = "test_short"
+file_name = "test_long"
 tts = TTS("tts_models/multilingual/multi-dataset/your_tts")
 
 extract_audio(f'{file_name}.mp4', f'{file_name}.wav')
@@ -41,3 +41,5 @@ video_clips = [video.subclip(start, end).set_audio(AudioFileClip(tts)) for (star
 
 final_clip = concatenate_videoclips(video_clips)
 final_clip.write_videofile(f"{file_name}_output.mp4", audio_codec="aac")
+
+extract_audio(f"{file_name}_output.mp4", f"{file_name}.wav")
